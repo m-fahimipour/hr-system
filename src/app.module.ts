@@ -4,6 +4,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from '~/src/app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import path from 'path';
+import { UserModule } from '~/src/modules/users/users.module';
+import { APP_PIPE } from '@nestjs/core';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 @Module({
   imports: [
@@ -30,8 +33,17 @@ import path from 'path';
         };
       },
     }),
+
+    // Product Modules
+    UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe,
+    },
+  ],
 })
 export class AppModule {}
