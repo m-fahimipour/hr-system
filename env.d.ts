@@ -8,5 +8,7 @@ declare namespace NodeJS {
     DB_PASSWORD: string;
     DB_NAME: string;
     DB_SYNC: boolean;
+    //
+    API_PREFIX: string;
   }
 }
