@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 // Schema
 export const UserRoleSchema = z.enum(
-  ['MANAGER', 'USER'],
+  ['HR_ADMIN', 'MANAGER'],
   'سمت ارسال شده اشتباه است.',
 );
 
@@ -32,7 +32,7 @@ export const UserSchema = z.object({
       description: 'User Phone Number',
     }),
   role: UserRoleSchema.meta({
-    example: UserRoleSchema.enum.USER,
+    example: UserRoleSchema.enum.HR_ADMIN,
   }),
   createdAt: z.date(),
   updatedAt: z.date(),

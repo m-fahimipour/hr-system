@@ -35,7 +35,7 @@ export class User implements TUser {
   @Column({
     type: 'enum',
     enum: UserRoleSchema.enum,
-    default: UserRoleSchema.enum.USER,
+    default: UserRoleSchema.enum.HR_ADMIN,
   })
   role: TUserRole;
 
