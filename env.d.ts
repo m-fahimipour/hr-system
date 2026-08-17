@@ -10,5 +10,12 @@ declare namespace NodeJS {
     DB_SYNC: boolean;
     //
     API_PREFIX: string;
+
+    // JWT
+    JWT_ACCESS_SECRET: string;
+    JWT_ACCESS_EXP: string;
+
+    JWT_REFRESH_SECRET: string;
+    JWT_REFRESH_EXP: string;
   }
 }

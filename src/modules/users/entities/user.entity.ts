@@ -33,15 +33,21 @@ export class User implements TUser {
   mobile: string;
 
   @Column({
+    type: 'varchar',
+    length: 256,
+  })
+  passwordHash: string;
+
+  @Column({
     type: 'enum',
     enum: UserRoleSchema.enum,
     default: UserRoleSchema.enum.HR_ADMIN,
   })
   role: TUserRole;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ utc: true })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ utc: true })
   updatedAt: Date;
 }

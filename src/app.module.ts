@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AppController } from '~/src/app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import path from 'path';
 import { UserModule } from '~/src/modules/users/users.module';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { AuthModule } from '~/src/modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -35,9 +35,9 @@ import { ZodValidationPipe } from 'nestjs-zod';
     }),
 
     // Product Modules
+    AuthModule,
     UserModule,
   ],
-  controllers: [AppController],
   providers: [
     AppService,
     {

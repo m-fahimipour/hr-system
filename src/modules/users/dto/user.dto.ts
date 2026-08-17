@@ -20,6 +20,7 @@ export const UserSchema = z.object({
     .meta({
       example: 'Mostafa Fahimipour',
     }),
+  passwordHash: z.string(),
   email: z.email('فرمت ایمیل نادرست است.').meta({
     example: 'example@gmail.com',
     description: 'User Email Address',
@@ -31,7 +32,7 @@ export const UserSchema = z.object({
       example: '09363460041',
       description: 'User Phone Number',
     }),
-  role: UserRoleSchema.meta({
+  role: UserRoleSchema.optional().meta({
     example: UserRoleSchema.enum.HR_ADMIN,
   }),
   createdAt: z.date(),
