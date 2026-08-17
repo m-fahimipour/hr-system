@@ -13,7 +13,7 @@ import { ZodValidationPipe } from 'nestjs-zod';
     // config for loading env variables
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env.dev',
+      envFilePath: '.env.development.local',
     }),
 
     // connect to database
