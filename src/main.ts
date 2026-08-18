@@ -17,6 +17,7 @@ async function bootstrap() {
     .setTitle('HR-System')
     .setDescription('HR-System For Manage Company!!!')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const doc = SwaggerModule.createDocument(app, config);

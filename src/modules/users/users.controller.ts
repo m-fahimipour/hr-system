@@ -1,6 +1,8 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreateUserDto } from '~/src/modules/users/dto/user.dto';
 
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   @Post()
