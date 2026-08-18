@@ -4,9 +4,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import path from 'path';
 import { UserModule } from '~/src/modules/users/users.module';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AuthModule } from '~/src/modules/auth/auth.module';
+import { AccessJwtGuard } from '~/src/modules/auth/guards/access-jwt.guard';
 
 @Module({
   imports: [
@@ -43,6 +44,10 @@ import { AuthModule } from '~/src/modules/auth/auth.module';
     {
       provide: APP_PIPE,
       useClass: ZodValidationPipe,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AccessJwtGuard,
     },
   ],
 })

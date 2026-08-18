@@ -5,7 +5,9 @@ import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { LoginUserDto } from '~/src/modules/auth/dto/login.dto';
 import { RegisterUserDto } from '~/src/modules/auth/dto/register.dto';
 import { AuthService } from '~/src/modules/auth/auth.service';
+import { PublicRoute } from '~/src/decorators/public-route.decorator';
 
+@PublicRoute()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
