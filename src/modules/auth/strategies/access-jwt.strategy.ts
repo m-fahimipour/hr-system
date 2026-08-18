@@ -25,9 +25,7 @@ export class AccessJWTStrategy extends PassportStrategy(
   }
 
   async validate(payload: IAccessPayload): Promise<TUser> {
-    console.log(payload);
-
-    const user = await this.usersService.findOne(payload.userId);
+    const user = await this.usersService.findOne(payload.sub);
 
     return user;
   }

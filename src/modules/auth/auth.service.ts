@@ -59,7 +59,6 @@ export class AuthService {
 
   private generateAccessToken(user: Omit<TUser, 'passwordHash'>) {
     const payload = {
-      userId: user.id,
       role: user.role,
     };
 

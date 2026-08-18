@@ -8,11 +8,12 @@ import { AuthController } from '~/src/modules/auth/auth.controller';
 // @Service
 import { AuthService } from '~/src/modules/auth/auth.service';
 import { AccessJWTStrategy } from '~/src/modules/auth/strategies/access-jwt.strategy';
+import { RefreshJWTStrategy } from '~/src/modules/auth/strategies/refresh-jwt.strategy';
 import { UserModule } from '~/src/modules/users/users.module';
 
 @Module({
   imports: [JwtModule.register({ global: true }), UserModule],
   controllers: [AuthController],
-  providers: [AuthService, JwtService, AccessJWTStrategy],
+  providers: [AuthService, JwtService, AccessJWTStrategy, RefreshJWTStrategy],
 })
 export class AuthModule {}
