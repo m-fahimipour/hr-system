@@ -1,5 +1,5 @@
 // @NestJS
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { RegisterUserDto } from '~/src/modules/auth/dto/register.dto';
 import { UsersService } from '~/src/modules/users/users.service';
@@ -64,7 +64,8 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      algorithm: process.env.JWT_ALGORITHM ?? 'HS512',
+      algorithm:
+        (process.env.JWT_ALGORITHM as JwtSignOptions['algorithm']) ?? 'HS512',
       secret: process.env.JWT_ACCESS_SECRET,
       subject: user.id,
       expiresIn: Number(process.env.JWT_ACCESS_EXP || 900_000),
@@ -77,7 +78,8 @@ export class AuthService {
     const refreshToken = this.jwtService.sign(
       {},
       {
-        algorithm: process.env.JWT_ALGORITHM ?? 'HS512',
+        algorithm:
+          (process.env.JWT_ALGORITHM as JwtSignOptions['algorithm']) ?? 'HS512',
         secret: process.env.JWT_REFRESH_SECRET,
         subject: userId,
         expiresIn: Number(process.env.JWT_REFRESH_EXP || 2_592_000_000),
