@@ -1,13 +1,17 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { CreateUserDto } from '~/src/modules/users/dto/user.dto';
+import { UsersService } from '~/src/modules/users/users.service';
 
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
+  @ApiExcludeEndpoint()
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
-    return createUserDto;
+    return await this.usersService.create(createUserDto);
   }
 
   @Get()

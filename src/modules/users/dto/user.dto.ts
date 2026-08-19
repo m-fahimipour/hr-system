@@ -39,11 +39,12 @@ export const UserSchema = z.object({
   updatedAt: z.date(),
 });
 
+export const CreateUserSchema = UserSchema.pick({
+  email: true,
+  name: true,
+  mobile: true,
+  passwordHash: true,
+});
+
 // Dto
-export class CreateUserDto extends createZodDto(
-  UserSchema.omit({
-    id: true,
-    createdAt: true,
-    updatedAt: true,
-  }),
-) {}
+export class CreateUserDto extends createZodDto(CreateUserSchema) {}

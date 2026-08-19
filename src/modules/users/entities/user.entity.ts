@@ -35,6 +35,7 @@ export class User implements TUser {
   @Column({
     type: 'varchar',
     length: 256,
+    select: false,
   })
   passwordHash: string;
 

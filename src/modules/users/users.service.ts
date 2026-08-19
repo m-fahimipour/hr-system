@@ -21,7 +21,9 @@ export class UsersService {
   }
 
   async findOne(userId: string) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
 
     if (!user) {
       throw new NotFoundException('کابری با این مشخصات یافت نشد!');
@@ -31,9 +33,11 @@ export class UsersService {
   }
 
   async findByMobile(mobile: string) {
-    const user = await this.userRepository.findOne({
-      where: { mobile },
-    });
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.passwordHash')
+      .where('user.mobile = :mobile', { mobile })
+      .getOne();
 
     if (!user) {
       throw new UnauthorizedException('مشخصات وارد شده اشتباه است!');

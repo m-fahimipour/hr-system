@@ -38,7 +38,7 @@ export class RefreshJWTStrategy extends PassportStrategy(
     const refreshToken = request.cookies?.['refreshToken'];
 
     if (!refreshToken) {
-      throw new ForbiddenException('unAuthorize!!!');
+      throw new ForbiddenException('Forbidden Access!');
     }
 
     return refreshToken;
