@@ -21,6 +21,7 @@ export class AccessJWTStrategy extends PassportStrategy(
       algorithms: [
         process.env.JWT_ALGORITHM,
       ] as StrategyOptionsWithoutRequest['algorithms'],
+      ignoreExpiration: false,
     });
   }
 

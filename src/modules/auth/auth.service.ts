@@ -57,17 +57,31 @@ export class AuthService {
     };
   }
 
+  async refresh(user: TUser) {
+    const { passwordHash: _, ...otherInfo } = user;
+
+    const accessToken = this.generateAccessToken(otherInfo);
+
+    // for refresh rotating
+    const refreshToken = this.generateRefreshToken(otherInfo.id);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: otherInfo,
+    };
+  }
+
   private generateAccessToken(user: Omit<TUser, 'passwordHash'>) {
     const payload = {
       role: user.role,
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      algorithm:
-        (process.env.JWT_ALGORITHM as JwtSignOptions['algorithm']) ?? 'HS512',
+      algorithm: process.env.JWT_ALGORITHM as JwtSignOptions['algorithm'],
       secret: process.env.JWT_ACCESS_SECRET,
       subject: user.id,
-      expiresIn: Number(process.env.JWT_ACCESS_EXP || 900_000),
+      expiresIn: Number(process.env.JWT_ACCESS_EXP) / 1000 || '15m', // number value should be in second
     });
 
     return accessToken;
@@ -77,11 +91,10 @@ export class AuthService {
     const refreshToken = this.jwtService.sign(
       {},
       {
-        algorithm:
-          (process.env.JWT_ALGORITHM as JwtSignOptions['algorithm']) ?? 'HS512',
+        algorithm: process.env.JWT_ALGORITHM as JwtSignOptions['algorithm'],
         secret: process.env.JWT_REFRESH_SECRET,
         subject: userId,
-        expiresIn: Number(process.env.JWT_REFRESH_EXP || 2_592_000_000),
+        expiresIn: Number(process.env.JWT_REFRESH_EXP) / 1000 || '30d', // number value should be in second
       },
     );
 

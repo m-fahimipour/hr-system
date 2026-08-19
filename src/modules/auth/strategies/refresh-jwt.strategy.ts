@@ -24,6 +24,7 @@ export class RefreshJWTStrategy extends PassportStrategy(
         process.env.JWT_ALGORITHM,
       ] as StrategyOptionsWithoutRequest['algorithms'],
       secretOrKey: process.env.JWT_REFRESH_SECRET,
+      ignoreExpiration: false,
     });
   }
 

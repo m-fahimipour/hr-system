@@ -4,6 +4,8 @@ import {
   Controller,
   HttpCode,
   Post,
+  Req,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 
@@ -14,6 +16,9 @@ import { AuthService } from '~/src/modules/auth/auth.service';
 import { PublicRoute } from '~/src/decorators/public-route.decorator';
 import { IAuthResponse } from '~/src/modules/auth/types';
 import { AuthInterceptor } from '~/src/interceptors/auth.interceptor';
+import type { Request } from 'express';
+import { TUser } from '~/src/modules/users/types/user.type';
+import { RefreshJWTGuard } from '~/src/modules/auth/guards/refresh-jwt.guard';
 
 @UseInterceptors(AuthInterceptor)
 @PublicRoute()
@@ -34,8 +39,9 @@ export class AuthController {
     return await this.authService.register(registerUserDto);
   }
 
+  @UseGuards(RefreshJWTGuard)
   @Post('refresh')
-  async refresh(): Promise<IAuthResponse> {
-    return new Promise(() => {});
+  async refresh(@Req() req: Request): Promise<IAuthResponse> {
+    return await this.authService.refresh(req.user as TUser);
   }
 }
