@@ -1,12 +1,19 @@
 // @TypeORM
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+// @Schema
 import { UserRoleSchema } from '~/src/modules/users/dto/user.dto';
+
+// @Third-Party
+import * as bcrypt from 'bcryptjs';
 
 // @Types
 import type { TUserRole, TUser } from '~/src/modules/users/types/user.type';
@@ -39,6 +46,9 @@ export class User implements TUser {
   })
   passwordHash: string;
 
+  // this is not column, it is used for generating passwordHash
+  password?: string;
+
   @Column({
     type: 'enum',
     enum: UserRoleSchema.enum,
@@ -51,4 +61,16 @@ export class User implements TUser {
 
   @UpdateDateColumn({ utc: true })
   updatedAt: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
+    if (!this.password) {
+      return;
+    }
+
+    this.passwordHash = await bcrypt.hash(this.password, 12);
+
+    this.password = undefined;
+  }
 }

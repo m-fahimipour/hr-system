@@ -2,9 +2,23 @@ import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 // Schema
+export const PasswordSchema = z
+  .string('رمز عبور باید رشته باشد')
+  .min(6, {
+    error: (issue) =>
+      `رمز عبور باید حداقل ${issue.minimum} کاراکتر داشته باشد.`,
+  })
+  .regex(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/,
+    'رمز عبور باید شامل حروف کوچک، بزرگ، اعداد و کاراکترهای خاص باشد.',
+  )
+  .meta({
+    example: 'Password@123',
+  });
+
 export const UserRoleSchema = z.enum(
   ['HR_ADMIN', 'MANAGER'],
-  'سمت ارسال شده اشتباه است.',
+  'نقش ارسال شده اشتباه است.',
 );
 
 export const UserSchema = z.object({
@@ -21,6 +35,7 @@ export const UserSchema = z.object({
       example: 'Mostafa Fahimipour',
     }),
   passwordHash: z.string(),
+  password: PasswordSchema,
   email: z.email('فرمت ایمیل نادرست است.').meta({
     example: 'example@gmail.com',
     description: 'User Email Address',
@@ -43,7 +58,7 @@ export const CreateUserSchema = UserSchema.pick({
   email: true,
   name: true,
   mobile: true,
-  passwordHash: true,
+  password: true,
 });
 
 // Dto

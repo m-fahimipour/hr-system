@@ -17,14 +17,9 @@ export class AuthService {
   ) {}
 
   async register(registerUserDto: RegisterUserDto) {
-    const { password, ...restRegisterUserDto } = registerUserDto;
-    const generatedPasswordHash = await this.hash(password, 12);
-
     // Create User
-    const { passwordHash, ...user } = await this.usersService.create({
-      ...restRegisterUserDto,
-      passwordHash: generatedPasswordHash,
-    });
+    const { passwordHash: _, ...user } =
+      await this.usersService.create(registerUserDto);
 
     const accessToken = this.generateAccessToken(user);
 
@@ -72,15 +67,15 @@ export class AuthService {
     };
   }
 
-  private generateAccessToken(user: Omit<TUser, 'passwordHash'>) {
+  private generateAccessToken(user: Omit<TUser, 'passwordHash' | 'password'>) {
     const payload = {
+      sub: user.id,
       role: user.role,
     };
 
     const accessToken = this.jwtService.sign(payload, {
       algorithm: process.env.JWT_ALGORITHM as JwtSignOptions['algorithm'],
       secret: process.env.JWT_ACCESS_SECRET,
-      subject: user.id,
       expiresIn: Number(process.env.JWT_ACCESS_EXP) / 1000 || '15m', // number value should be in second
     });
 
@@ -88,20 +83,16 @@ export class AuthService {
   }
 
   private generateRefreshToken(userId: string) {
-    const refreshToken = this.jwtService.sign(
-      {},
-      {
-        algorithm: process.env.JWT_ALGORITHM as JwtSignOptions['algorithm'],
-        secret: process.env.JWT_REFRESH_SECRET,
-        subject: userId,
-        expiresIn: Number(process.env.JWT_REFRESH_EXP) / 1000 || '30d', // number value should be in second
-      },
-    );
+    const payload = {
+      sub: userId,
+    };
+
+    const refreshToken = this.jwtService.sign(payload, {
+      algorithm: process.env.JWT_ALGORITHM as JwtSignOptions['algorithm'],
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: Number(process.env.JWT_REFRESH_EXP) / 1000 || '30d', // number value should be in second
+    });
 
     return refreshToken;
-  }
-
-  private async hash(password: string, salt: number) {
-    return await bcrypt.hash(password, salt);
   }
 }
