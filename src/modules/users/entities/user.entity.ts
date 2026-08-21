@@ -5,6 +5,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -17,6 +18,7 @@ import * as bcrypt from 'bcryptjs';
 
 // @Types
 import type { TUserRole, TUser } from '~/src/modules/users/types/user.type';
+import { Session } from '~/src/modules/sessions/entities/sessions.entity';
 
 @Entity()
 export class User implements TUser {
@@ -55,6 +57,9 @@ export class User implements TUser {
     default: UserRoleSchema.enum.HR_ADMIN,
   })
   role: TUserRole;
+
+  @OneToMany(() => Session, (session) => session.user)
+  sessions: Session[];
 
   @CreateDateColumn({ utc: true })
   createdAt: Date;

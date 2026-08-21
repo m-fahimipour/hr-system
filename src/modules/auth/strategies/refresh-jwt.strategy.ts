@@ -6,7 +6,7 @@ import {
   Strategy,
   StrategyOptionsWithoutRequest,
 } from 'passport-jwt';
-import { IRefreshPayload } from '~/src/modules/auth/types';
+import { RefreshTokenPayloadDto } from '~/src/modules/auth/dto/token.dto';
 import { TUser } from '~/src/modules/users/types/user.type';
 import { UsersService } from '~/src/modules/users/users.service';
 
@@ -28,10 +28,18 @@ export class RefreshJWTStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: IRefreshPayload): Promise<TUser> {
+  async validate(payload: RefreshTokenPayloadDto): Promise<{
+    userInfo: TUser;
+    sid: string;
+    jti: string;
+  }> {
     const user = await this.usersService.findOne(payload.sub);
 
-    return user;
+    return {
+      userInfo: user,
+      sid: payload.sid,
+      jti: payload.jti,
+    };
   }
 
   private static ExtractJWTFromCookie(request: Request) {

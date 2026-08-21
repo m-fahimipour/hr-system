@@ -9,11 +9,25 @@ import { AuthController } from '~/src/modules/auth/auth.controller';
 import { AuthService } from '~/src/modules/auth/auth.service';
 import { AccessJWTStrategy } from '~/src/modules/auth/strategies/access-jwt.strategy';
 import { RefreshJWTStrategy } from '~/src/modules/auth/strategies/refresh-jwt.strategy';
+import { TokenService } from '~/src/modules/auth/token.service';
+import { RefreshTokensModule } from '~/src/modules/refresh-tokens/refreshTokens.module';
+import { SessionsModule } from '~/src/modules/sessions/sessions.module';
 import { UserModule } from '~/src/modules/users/users.module';
 
 @Module({
-  imports: [JwtModule.register({ global: true }), UserModule],
+  imports: [
+    JwtModule.register({ global: true }),
+    UserModule,
+    SessionsModule,
+    RefreshTokensModule,
+  ],
   controllers: [AuthController],
-  providers: [AuthService, JwtService, AccessJWTStrategy, RefreshJWTStrategy],
+  providers: [
+    AuthService,
+    JwtService,
+    TokenService,
+    AccessJWTStrategy,
+    RefreshJWTStrategy,
+  ],
 })
 export class AuthModule {}

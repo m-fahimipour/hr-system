@@ -8,91 +8,108 @@ import { UsersService } from '~/src/modules/users/users.service';
 import bcrypt from 'bcryptjs';
 import { LoginUserDto } from '~/src/modules/auth/dto/login.dto';
 import { TUser } from '~/src/modules/users/types/user.type';
+import { SessionsService } from '~/src/modules/sessions/sessions.service';
+import {
+  AccessTokenPayloadDto,
+  RefreshTokenPayloadDto,
+} from '~/src/modules/auth/dto/token.dto';
+
+import { v4 as uuidV4 } from 'uuid';
+import { TokenService } from '~/src/modules/auth/token.service';
+import { RefreshTokensService } from '~/src/modules/refresh-tokens/refreshTokens.service';
+import { Request } from 'express';
+import { UserResponseDto } from '~/src/modules/users/dto/user.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
+    private readonly tokenService: TokenService,
+    private readonly sessionsService: SessionsService,
+    private readonly refreshTokensService: RefreshTokensService,
   ) {}
 
-  async register(registerUserDto: RegisterUserDto) {
+  async register(registerUserDto: RegisterUserDto, request: Request) {
+    const jti = uuidV4();
+
     // Create User
-    const { passwordHash: _, ...user } =
-      await this.usersService.create(registerUserDto);
+    const user = await this.usersService.create(registerUserDto);
 
-    const accessToken = this.generateAccessToken(user);
+    const session = await this.sessionsService.create({
+      userId: user.id,
+      userAgent: request.headers['user-agent'] || null,
+      ipAddress: '',
+    });
 
-    const refreshToken = this.generateRefreshToken(user.id);
+    const accessToken = this.tokenService.generateAccessToken(
+      new AccessTokenPayloadDto(user, session.id),
+    );
+
+    const refreshToken = this.tokenService.generateRefreshToken(
+      new RefreshTokenPayloadDto(user.id, session.id, jti),
+    );
+
+    await this.refreshTokensService.create(jti, session.id);
 
     return {
       accessToken,
       refreshToken,
-      user,
+      user: new UserResponseDto(user),
     };
   }
 
-  async login({ mobile, password }: LoginUserDto) {
-    const { passwordHash, ...user } =
-      await this.usersService.findByMobile(mobile);
-    const matchPassword = await bcrypt.compare(password, passwordHash);
+  async login({ mobile, password }: LoginUserDto, request: Request) {
+    const jti = uuidV4();
+
+    const user = await this.usersService.findByMobile(mobile);
+    const matchPassword = await bcrypt.compare(password, user.passwordHash);
 
     if (!matchPassword) {
       throw new UnauthorizedException('مشخصات وارد شده اشتباه است!');
     }
 
-    const accessToken = this.generateAccessToken(user);
+    const session = await this.sessionsService.create({
+      userId: user.id,
+      userAgent: request.headers['user-agent'] || null,
+      ipAddress: '',
+    });
 
-    const refreshToken = this.generateRefreshToken(user.id);
+    const accessToken = this.tokenService.generateAccessToken(
+      new AccessTokenPayloadDto(user, session.id),
+    );
+
+    const refreshToken = this.tokenService.generateRefreshToken(
+      new RefreshTokenPayloadDto(user.id, session.id, jti),
+    );
+
+    await this.refreshTokensService.create(jti, session.id);
 
     return {
       accessToken,
       refreshToken,
-      user,
+      user: new UserResponseDto(user),
     };
   }
 
-  async refresh(user: TUser) {
-    const { passwordHash: _, ...otherInfo } = user;
+  async refresh(props: { userInfo: TUser; sid: string; jti: string }) {
+    const newJti = uuidV4();
 
-    const accessToken = this.generateAccessToken(otherInfo);
+    const accessToken = this.tokenService.generateAccessToken(
+      new AccessTokenPayloadDto(props.userInfo, props.sid),
+    );
 
     // for refresh rotating
-    const refreshToken = this.generateRefreshToken(otherInfo.id);
+    const refreshToken = this.tokenService.generateRefreshToken(
+      new RefreshTokenPayloadDto(props.userInfo.id, props.sid, newJti),
+    );
+
+    await this.refreshTokensService.revoke(props.jti);
+    await this.refreshTokensService.create(newJti, props.sid);
 
     return {
       accessToken,
       refreshToken,
-      user: otherInfo,
+      user: new UserResponseDto(props.userInfo),
     };
-  }
-
-  private generateAccessToken(user: Omit<TUser, 'passwordHash' | 'password'>) {
-    const payload = {
-      sub: user.id,
-      role: user.role,
-    };
-
-    const accessToken = this.jwtService.sign(payload, {
-      algorithm: process.env.JWT_ALGORITHM as JwtSignOptions['algorithm'],
-      secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn: Number(process.env.JWT_ACCESS_EXP) / 1000 || '15m', // number value should be in second
-    });
-
-    return accessToken;
-  }
-
-  private generateRefreshToken(userId: string) {
-    const payload = {
-      sub: userId,
-    };
-
-    const refreshToken = this.jwtService.sign(payload, {
-      algorithm: process.env.JWT_ALGORITHM as JwtSignOptions['algorithm'],
-      secret: process.env.JWT_REFRESH_SECRET,
-      expiresIn: Number(process.env.JWT_REFRESH_EXP) / 1000 || '30d', // number value should be in second
-    });
-
-    return refreshToken;
   }
 }

@@ -5,7 +5,7 @@ import {
   Strategy,
   StrategyOptionsWithoutRequest,
 } from 'passport-jwt';
-import { IAccessPayload } from '~/src/modules/auth/types';
+import { AccessTokenPayloadDto } from '~/src/modules/auth/dto/token.dto';
 import { TUser } from '~/src/modules/users/types/user.type';
 import { UsersService } from '~/src/modules/users/users.service';
 
@@ -25,7 +25,7 @@ export class AccessJWTStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: IAccessPayload): Promise<TUser> {
+  async validate(payload: AccessTokenPayloadDto): Promise<TUser> {
     const user = await this.usersService.findOne(payload.sub);
 
     return user;

@@ -27,21 +27,31 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginUserDto: LoginUserDto): Promise<IAuthResponse> {
-    return await this.authService.login(loginUserDto);
+  async login(
+    @Body() loginUserDto: LoginUserDto,
+    @Req() request: Request,
+  ): Promise<IAuthResponse> {
+    return await this.authService.login(loginUserDto, request);
   }
 
   @Post('register')
   @HttpCode(201)
   async register(
     @Body() registerUserDto: RegisterUserDto,
+    @Req() request: Request,
   ): Promise<IAuthResponse> {
-    return await this.authService.register(registerUserDto);
+    return await this.authService.register(registerUserDto, request);
   }
 
   @UseGuards(RefreshJWTGuard)
   @Post('refresh')
   async refresh(@Req() req: Request): Promise<IAuthResponse> {
-    return await this.authService.refresh(req.user as TUser);
+    return await this.authService.refresh(
+      req.user as {
+        userInfo: TUser;
+        sid: string;
+        jti: string;
+      },
+    );
   }
 }

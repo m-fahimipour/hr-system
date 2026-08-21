@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { TUser } from '~/src/modules/users/types/user.type';
 
 // Schema
 export const PasswordSchema = z
@@ -63,3 +64,21 @@ export const CreateUserSchema = UserSchema.pick({
 
 // Dto
 export class CreateUserDto extends createZodDto(CreateUserSchema) {}
+
+export class UserResponseDto {
+  id: string;
+  name: string;
+  email: string;
+  role?: z.infer<typeof UserRoleSchema>;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+
+  constructor(user: TUser) {
+    this.id = user.id;
+    this.name = user.name;
+    this.email = user.email;
+    this.role = user.role;
+    this.createdAt = user.createdAt;
+    this.updatedAt = user.updatedAt;
+  }
+}
