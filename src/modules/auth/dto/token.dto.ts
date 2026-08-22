@@ -6,10 +6,7 @@ export class AccessTokenPayloadDto implements Partial<IReserveClaim> {
   sid: string;
   role?: TUserRole;
 
-  constructor(
-    private user: TUser,
-    private sessionId: string,
-  ) {
+  constructor(user: TUser, sessionId: string) {
     this.sub = user.id;
     this.sid = sessionId;
     this.role = user.role;
@@ -21,11 +18,7 @@ export class RefreshTokenPayloadDto implements Partial<IReserveClaim> {
   sid: string;
   jti: string;
 
-  constructor(
-    private userId: string,
-    private sessionId: string,
-    private jwtId: string,
-  ) {
+  constructor(userId: string, sessionId: string, jwtId: string) {
     this.sub = userId;
     this.sid = sessionId;
     this.jti = jwtId;

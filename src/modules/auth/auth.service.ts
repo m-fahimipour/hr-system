@@ -19,6 +19,7 @@ import { TokenService } from '~/src/modules/auth/token.service';
 import { RefreshTokensService } from '~/src/modules/refresh-tokens/refreshTokens.service';
 import { Request } from 'express';
 import { UserResponseDto } from '~/src/modules/users/dto/user.dto';
+import { IRefreshProps } from '~/src/modules/auth/types';
 
 @Injectable()
 export class AuthService {
@@ -91,7 +92,7 @@ export class AuthService {
     };
   }
 
-  async refresh(props: { userInfo: TUser; sid: string; jti: string }) {
+  async refresh(props: IRefreshProps) {
     const newJti = uuidV4();
 
     const accessToken = this.tokenService.generateAccessToken(
