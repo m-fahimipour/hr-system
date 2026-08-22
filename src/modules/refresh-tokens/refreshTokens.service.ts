@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RefreshToken } from '~/src/modules/refresh-tokens/entities/refreshTokens.entity';
-import { v4 as uuidV4 } from 'uuid';
 
 @Injectable()
 export class RefreshTokensService {
@@ -17,23 +16,31 @@ export class RefreshTokensService {
       session: {
         id: sessionId,
       },
-      expiresAt: new Date(),
+      expiresAt: new Date(
+        Date.now() + Number(process.env.JWT_REFRESH_EXP || 0),
+      ),
     });
 
     return await this.refreshTokenRepo.save(refreshTokenRow);
   }
 
   async revoke(jti: string) {
-    const refreshUpdated = await this.refreshTokenRepo.update(
+    const refreshTokenRow = await this.refreshTokenRepo.findOneBy({ id: jti });
+
+    if (!refreshTokenRow) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (refreshTokenRow.expiresAt < new Date() || refreshTokenRow.revokedAt) {
+      throw new UnauthorizedException('expired refresh token');
+    }
+
+    await this.refreshTokenRepo.update(
       { id: jti },
       {
         revokedAt: new Date(),
       },
     );
-
-    if (refreshUpdated.affected === 0) {
-      throw new UnauthorizedException('Unauthorize Error');
-    }
 
     return true;
   }
