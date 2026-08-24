@@ -8,6 +8,8 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AuthModule } from '~/src/modules/auth/auth.module';
 import { AccessJwtGuard } from '~/src/modules/auth/guards/access-jwt.guard';
+import { SessionsModule } from '~/src/modules/sessions/sessions.module';
+import { RefreshTokensModule } from '~/src/modules/refresh-tokens/refreshTokens.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { AccessJwtGuard } from '~/src/modules/auth/guards/access-jwt.guard';
     // Product Modules
     AuthModule,
     UserModule,
+    SessionsModule,
+    RefreshTokensModule,
   ],
   providers: [
     AppService,

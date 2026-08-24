@@ -17,7 +17,9 @@ export class SessionsService {
       },
       ...otherCreateSessionInfo,
       lastSeenAt: new Date(),
-      expiresAt: new Date(Date.now() + 2_562_000_000),
+      expiresAt: new Date(
+        Date.now() + Number(process.env.JWT_REFRESH_EXP || 0),
+      ),
     });
 
     return await this.sessionRepo.save(session);
