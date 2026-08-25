@@ -32,6 +32,7 @@ import { RefreshTokensModule } from '~/src/modules/refresh-tokens/refreshTokens.
           password: configService.get('DB_PASSWORD') ?? '',
           database: configService.get('DB_Name') ?? 'hr',
           entities: [path.resolve(__dirname + '/**/entities/*.entity.{js,ts}')],
+          timezone:"Z",
           synchronize: Boolean(configService.get('DB_SYNC')) ?? false,
         };
       },

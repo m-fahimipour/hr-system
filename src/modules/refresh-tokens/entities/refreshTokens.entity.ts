@@ -14,9 +14,9 @@ export class RefreshToken implements TRefreshToken {
   @JoinColumn({ name: 'sessionId' })
   session: Session;
 
-  @Column({ type: 'datetime', utc: true })
+  @Column({ type: 'datetime' })
   expiresAt: Date;
 
-  @Column({ type: 'datetime', utc: true, nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   revokedAt: Date | null;
 }

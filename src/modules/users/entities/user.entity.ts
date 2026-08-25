@@ -61,10 +61,10 @@ export class User implements TUser {
   @OneToMany(() => Session, (session) => session.user)
   sessions: Session[];
 
-  @CreateDateColumn({ utc: true })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ utc: true })
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
   @BeforeInsert()
