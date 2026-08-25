@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { CreateUserDto } from '~/src/modules/users/dto/user.dto';
 import { User } from '~/src/modules/users/entities/user.entity';
 
@@ -14,11 +14,13 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const userObject = this.userRepository.create(createUserDto);
+  async create(createUserDto: CreateUserDto, manager?: EntityManager) {
+    const repo = manager ? manager.getRepository(User) : this.userRepository;
+
+    const userObject = repo.create(createUserDto);
     userObject.password = createUserDto.password;
 
-    return await this.userRepository.save(userObject);
+    return await repo.save(userObject);
   }
 
   async findOne(userId: string) {

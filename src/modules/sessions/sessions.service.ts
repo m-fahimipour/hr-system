@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Session } from '~/src/modules/sessions/entities/sessions.entity';
 import { TCreateSession } from '~/src/modules/sessions/types/sessions.type';
 
@@ -10,8 +10,13 @@ export class SessionsService {
     @InjectRepository(Session) private sessionRepo: Repository<Session>,
   ) {}
 
-  async create({ userId, ...otherCreateSessionInfo }: TCreateSession) {
-    const session = this.sessionRepo.create({
+  async create(
+    { userId, ...otherCreateSessionInfo }: TCreateSession,
+    manager?: EntityManager,
+  ) {
+    const repo = manager ? manager.getRepository(Session) : this.sessionRepo;
+
+    const session = repo.create({
       user: {
         id: userId,
       },
@@ -22,6 +27,6 @@ export class SessionsService {
       ),
     });
 
-    return await this.sessionRepo.save(session);
+    return await repo.save(session);
   }
 }

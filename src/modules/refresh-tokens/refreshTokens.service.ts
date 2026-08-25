@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { RefreshToken } from '~/src/modules/refresh-tokens/entities/refreshTokens.entity';
 
 @Injectable()
@@ -10,8 +10,12 @@ export class RefreshTokensService {
     private refreshTokenRepo: Repository<RefreshToken>,
   ) {}
 
-  async create(jti: string, sessionId: string) {
-    const refreshTokenRow = this.refreshTokenRepo.create({
+  async create(jti: string, sessionId: string, manager?: EntityManager) {
+    const repo = manager
+      ? manager.getRepository(RefreshToken)
+      : this.refreshTokenRepo;
+
+    const refreshTokenRow = repo.create({
       id: jti,
       session: {
         id: sessionId,
@@ -21,11 +25,15 @@ export class RefreshTokensService {
       ),
     });
 
-    return await this.refreshTokenRepo.save(refreshTokenRow);
+    return await repo.save(refreshTokenRow);
   }
 
-  async revoke(jti: string) {
-    const refreshTokenRow = await this.refreshTokenRepo.findOneBy({ id: jti });
+  async revoke(jti: string, manager?: EntityManager) {
+    const repo = manager
+      ? manager.getRepository(RefreshToken)
+      : this.refreshTokenRepo;
+
+    const refreshTokenRow = await repo.findOneBy({ id: jti });
 
     if (!refreshTokenRow) {
       throw new UnauthorizedException('Invalid refresh token');
@@ -35,7 +43,7 @@ export class RefreshTokensService {
       throw new UnauthorizedException('expired refresh token');
     }
 
-    await this.refreshTokenRepo.update(
+    await repo.update(
       { id: jti },
       {
         revokedAt: new Date(),

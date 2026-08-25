@@ -7,7 +7,6 @@ import { UsersService } from '~/src/modules/users/users.service';
 // @Third-Party
 import bcrypt from 'bcryptjs';
 import { LoginUserDto } from '~/src/modules/auth/dto/login.dto';
-import { TUser } from '~/src/modules/users/types/user.type';
 import { SessionsService } from '~/src/modules/sessions/sessions.service';
 import {
   AccessTokenPayloadDto,
@@ -20,10 +19,12 @@ import { RefreshTokensService } from '~/src/modules/refresh-tokens/refreshTokens
 import { Request } from 'express';
 import { UserResponseDto } from '~/src/modules/users/dto/user.dto';
 import { IRefreshProps } from '~/src/modules/auth/types';
+import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly dataSource: DataSource,
     private readonly usersService: UsersService,
     private readonly tokenService: TokenService,
     private readonly sessionsService: SessionsService,
@@ -33,30 +34,38 @@ export class AuthService {
   async register(registerUserDto: RegisterUserDto, request: Request) {
     const jti = uuidV4();
 
-    // Create User
-    const user = await this.usersService.create(registerUserDto);
+    return await this.dataSource.transaction(async (manager: EntityManager) => {
+      // Create User
+      const user = await this.usersService.create(registerUserDto, manager);
 
-    const session = await this.sessionsService.create({
-      userId: user.id,
-      userAgent: request.headers['user-agent'] || null,
-      ipAddress: '',
+      // Create Session
+      const session = await this.sessionsService.create(
+        {
+          userId: user.id,
+          userAgent: request.headers['user-agent'] || null,
+          ipAddress: '',
+        },
+        manager,
+      );
+
+      // Create Refresh_Token Record
+      await this.refreshTokensService.create(jti, session.id, manager);
+
+      // Create Tokens
+      const accessToken = this.tokenService.generateAccessToken(
+        new AccessTokenPayloadDto(user, session.id),
+      );
+
+      const refreshToken = this.tokenService.generateRefreshToken(
+        new RefreshTokenPayloadDto(user.id, session.id, jti),
+      );
+
+      return {
+        accessToken,
+        refreshToken,
+        user: new UserResponseDto(user),
+      };
     });
-
-    const accessToken = this.tokenService.generateAccessToken(
-      new AccessTokenPayloadDto(user, session.id),
-    );
-
-    const refreshToken = this.tokenService.generateRefreshToken(
-      new RefreshTokenPayloadDto(user.id, session.id, jti),
-    );
-
-    await this.refreshTokensService.create(jti, session.id);
-
-    return {
-      accessToken,
-      refreshToken,
-      user: new UserResponseDto(user),
-    };
   }
 
   async login({ mobile, password }: LoginUserDto, request: Request) {
@@ -69,48 +78,56 @@ export class AuthService {
       throw new UnauthorizedException('مشخصات وارد شده اشتباه است!');
     }
 
-    const session = await this.sessionsService.create({
-      userId: user.id,
-      userAgent: request.headers['user-agent'] || null,
-      ipAddress: '',
+    return await this.dataSource.transaction(async (manager) => {
+      const session = await this.sessionsService.create(
+        {
+          userId: user.id,
+          userAgent: request.headers['user-agent'] || null,
+          ipAddress: '',
+        },
+        manager,
+      );
+
+      await this.refreshTokensService.create(jti, session.id, manager);
+
+      const accessToken = this.tokenService.generateAccessToken(
+        new AccessTokenPayloadDto(user, session.id),
+      );
+
+      const refreshToken = this.tokenService.generateRefreshToken(
+        new RefreshTokenPayloadDto(user.id, session.id, jti),
+      );
+
+      return {
+        accessToken,
+        refreshToken,
+        user: new UserResponseDto(user),
+      };
     });
-
-    const accessToken = this.tokenService.generateAccessToken(
-      new AccessTokenPayloadDto(user, session.id),
-    );
-
-    const refreshToken = this.tokenService.generateRefreshToken(
-      new RefreshTokenPayloadDto(user.id, session.id, jti),
-    );
-
-    await this.refreshTokensService.create(jti, session.id);
-
-    return {
-      accessToken,
-      refreshToken,
-      user: new UserResponseDto(user),
-    };
   }
 
   async refresh(props: IRefreshProps) {
     const newJti = uuidV4();
 
-    const accessToken = this.tokenService.generateAccessToken(
-      new AccessTokenPayloadDto(props.userInfo, props.sid),
-    );
+    return await this.dataSource.transaction(async (manager) => {
+      await this.refreshTokensService.create(newJti, props.sid, manager);
 
-    // for refresh rotating
-    const refreshToken = this.tokenService.generateRefreshToken(
-      new RefreshTokenPayloadDto(props.userInfo.id, props.sid, newJti),
-    );
+      await this.refreshTokensService.revoke(props.jti, manager);
 
-    await this.refreshTokensService.revoke(props.jti);
-    await this.refreshTokensService.create(newJti, props.sid);
+      const accessToken = this.tokenService.generateAccessToken(
+        new AccessTokenPayloadDto(props.userInfo, props.sid),
+      );
 
-    return {
-      accessToken,
-      refreshToken,
-      user: new UserResponseDto(props.userInfo),
-    };
+      // for refresh rotating
+      const refreshToken = this.tokenService.generateRefreshToken(
+        new RefreshTokenPayloadDto(props.userInfo.id, props.sid, newJti),
+      );
+
+      return {
+        accessToken,
+        refreshToken,
+        user: new UserResponseDto(props.userInfo),
+      };
+    });
   }
 }
