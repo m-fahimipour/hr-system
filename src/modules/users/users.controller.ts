@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { CreateUserDto } from '~/src/modules/users/dto/user.dto';
 import { UsersService } from '~/src/modules/users/users.service';
@@ -15,7 +23,13 @@ export class UsersController {
   }
 
   @Get()
-  async findAll() {}
+  async findAll() {
+    throw new BadRequestException({
+      message: 'test',
+      code: 'test',
+      statusCode: HttpStatus.BAD_REQUEST,
+    });
+  }
 
   @Get(':id')
   async findOne(@Param('id') userId: string) {}
