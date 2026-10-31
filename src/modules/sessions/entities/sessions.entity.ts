@@ -40,13 +40,13 @@ export class Session implements TSession {
   @Column({ type: 'varchar', length: 30, nullable: true })
   ipAddress: string | null;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamptz' })
   lastSeenAt: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamptz' })
   expiresAt: Date;
 
-  @Column({ type: 'datetime', default: null })
+  @Column({ type: 'timestamptz', default: null })
   revokedAt: Date | null;
 
   @Column({

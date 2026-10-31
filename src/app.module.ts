@@ -25,12 +25,12 @@ import { RefreshTokensModule } from '~/src/modules/refresh-tokens/refreshTokens.
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
         return {
-          type: 'mysql',
+          type: 'postgres',
           host: configService.get('DB_HOST') ?? 'localhost',
-          port: Number(configService.get('DB_POST')) ?? 3306,
+          port: Number(configService.get('DB_PORT')) ?? 5432,
           username: configService.get('DB_USERNAME') ?? 'root',
           password: configService.get('DB_PASSWORD') ?? '',
-          database: configService.get('DB_Name') ?? 'hr',
+          database: configService.get('DB_NAME') ?? 'hr',
           entities: [path.resolve(__dirname + '/**/entities/*.entity.{js,ts}')],
           timezone:"Z",
           synchronize: Boolean(configService.get('DB_SYNC')) ?? false,
