@@ -17,7 +17,6 @@ import { v4 as uuidV4 } from 'uuid';
 import { TokenService } from '~/src/modules/auth/token.service';
 import { RefreshTokensService } from '~/src/modules/refresh-tokens/refreshTokens.service';
 import { Request } from 'express';
-import { UserResponseDto } from '~/src/modules/users/dto/user.dto';
 import { IRefreshProps } from '~/src/modules/auth/types';
 import { DataSource, EntityManager } from 'typeorm';
 
@@ -63,7 +62,7 @@ export class AuthService {
       return {
         accessToken,
         refreshToken,
-        user: new UserResponseDto(user),
+        user,
       };
     });
   }
@@ -101,7 +100,7 @@ export class AuthService {
       return {
         accessToken,
         refreshToken,
-        user: new UserResponseDto(user),
+        user,
       };
     });
   }
@@ -126,7 +125,7 @@ export class AuthService {
       return {
         accessToken,
         refreshToken,
-        user: new UserResponseDto(props.userInfo),
+        user: props.userInfo,
       };
     });
   }

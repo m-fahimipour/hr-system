@@ -4,8 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import path from 'path';
 import { UserModule } from '~/src/modules/users/users.module';
-import { APP_GUARD, APP_PIPE } from '@nestjs/core';
-import { ZodValidationPipe } from 'nestjs-zod';
+import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import { AuthModule } from '~/src/modules/auth/auth.module';
 import { AccessJwtGuard } from '~/src/modules/auth/guards/access-jwt.guard';
 import { SessionsModule } from '~/src/modules/sessions/sessions.module';
@@ -32,7 +32,7 @@ import { RefreshTokensModule } from '~/src/modules/refresh-tokens/refreshTokens.
           password: configService.get('DB_PASSWORD') ?? '',
           database: configService.get('DB_NAME') ?? 'hr',
           entities: [path.resolve(__dirname + '/**/entities/*.entity.{js,ts}')],
-          timezone:"Z",
+          timezone: 'Z',
           synchronize: Boolean(configService.get('DB_SYNC')) ?? false,
         };
       },
@@ -49,6 +49,10 @@ import { RefreshTokensModule } from '~/src/modules/refresh-tokens/refreshTokens.
     {
       provide: APP_PIPE,
       useClass: ZodValidationPipe,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ZodSerializerInterceptor,
     },
     {
       provide: APP_GUARD,

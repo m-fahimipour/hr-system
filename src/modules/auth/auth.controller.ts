@@ -18,6 +18,8 @@ import { IAuthResponse, IRefreshProps } from '~/src/modules/auth/types';
 import { AuthInterceptor } from '~/src/interceptors/auth.interceptor';
 import type { Request } from 'express';
 import { RefreshJWTGuard } from '~/src/modules/auth/guards/refresh-jwt.guard';
+import { ZodSerializerDto } from 'nestjs-zod';
+import { UserSerializeDto } from '~/src/modules/users/dto/user.dto';
 
 @UseInterceptors(AuthInterceptor)
 @PublicRoute()
@@ -26,6 +28,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @ZodSerializerDto(UserSerializeDto)
   async login(
     @Body() loginUserDto: LoginUserDto,
     @Req() request: Request,
@@ -35,6 +38,7 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(201)
+  @ZodSerializerDto(UserSerializeDto)
   async register(
     @Body() registerUserDto: RegisterUserDto,
     @Req() request: Request,

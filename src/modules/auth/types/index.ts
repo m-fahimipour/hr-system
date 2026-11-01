@@ -1,10 +1,9 @@
-import { UserResponseDto } from '~/src/modules/users/dto/user.dto';
 import { TUser } from '~/src/modules/users/types/user.type';
 
 export interface IAuthResponse {
   accessToken: string;
   refreshToken: string;
-  user: UserResponseDto;
+  user: TUser;
 }
 
 export interface IReserveClaim {

@@ -8,6 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiExcludeEndpoint } from '@nestjs/swagger';
+import { PublicRoute } from '~/src/decorators/public-route.decorator';
 import { CreateUserDto } from '~/src/modules/users/dto/user.dto';
 import { UsersService } from '~/src/modules/users/users.service';
 
