@@ -34,7 +34,7 @@ export class Session implements TSession {
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.session)
   refreshTokens: RefreshToken[];
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 256, nullable: true })
   userAgent: string | null;
 
   @Column({ type: 'varchar', length: 30, nullable: true })
