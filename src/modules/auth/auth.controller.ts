@@ -51,4 +51,10 @@ export class AuthController {
   async refresh(@Req() req: Request): Promise<IAuthResponse> {
     return await this.authService.refresh(req.user as IRefreshProps);
   }
+
+  @UseGuards(RefreshJWTGuard)
+  @Post('logout')
+  async logout(@Req() res: Request) {
+    return await this.authService.logout(res.user as IRefreshProps);
+  }
 }

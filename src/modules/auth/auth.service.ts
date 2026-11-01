@@ -19,6 +19,8 @@ import { RefreshTokensService } from '~/src/modules/refresh-tokens/refreshTokens
 import { Request } from 'express';
 import { IRefreshProps } from '~/src/modules/auth/types';
 import { DataSource, EntityManager } from 'typeorm';
+import { Session } from '~/src/modules/sessions/entities/sessions.entity';
+import { RefreshToken } from '~/src/modules/refresh-tokens/entities/refreshTokens.entity';
 
 @Injectable()
 export class AuthService {
@@ -126,6 +128,31 @@ export class AuthService {
         accessToken,
         refreshToken,
         user: props.userInfo,
+      };
+    });
+  }
+
+  async logout({ sid, jti }: IRefreshProps) {
+    return await this.dataSource.transaction(async (manager) => {
+      const sessionRepo = manager.getRepository(Session);
+      await sessionRepo.update(
+        { id: sid },
+        {
+          revokedAt: new Date(),
+          revokedReason: 'LOGOUT',
+        },
+      );
+
+      const refreshTokenRepo = manager.getRepository(RefreshToken);
+      await refreshTokenRepo.update(
+        { id: jti },
+        {
+          revokedAt: new Date(),
+        },
+      );
+
+      return {
+        message: 'با موفقیت خارج شدید.',
       };
     });
   }

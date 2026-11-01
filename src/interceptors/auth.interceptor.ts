@@ -23,7 +23,7 @@ export class AuthInterceptor implements NestInterceptor {
         response.cookie('refreshToken', refreshToken, {
           httpOnly: true,
           sameSite: 'lax',
-          maxAge: Number(process.env.JWT_REFRESH_EXP || 0), // in ms
+          maxAge: refreshToken ? Number(process.env.JWT_REFRESH_EXP || 0) : 0, // in ms
           secure: process.env.NODE_ENV === 'production' ? true : false,
         });
 
