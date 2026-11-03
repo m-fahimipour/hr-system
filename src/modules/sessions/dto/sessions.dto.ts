@@ -27,3 +27,8 @@ export const CreateSessionSchema = SessionSchema.pick({
   ipAddress: true,
   userAgent: true,
 });
+
+export const RevokeSessionSchema = SessionSchema.pick({
+  id: true,
+  revokedReason: true,
+});

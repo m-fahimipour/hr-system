@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Session } from '~/src/modules/sessions/entities/sessions.entity';
-import { TCreateSession } from '~/src/modules/sessions/types/sessions.type';
+import {
+  TCreateSession,
+  TRevokeSession,
+} from '~/src/modules/sessions/types/sessions.type';
 
 @Injectable()
 export class SessionsService {
@@ -28,5 +31,31 @@ export class SessionsService {
     });
 
     return await repo.save(session);
+  }
+
+  async revokeOne(
+    { id, revokedReason }: TRevokeSession,
+    manager?: EntityManager,
+  ) {
+    const repo = manager ? manager.getRepository(Session) : this.sessionRepo;
+
+    await repo.update({ id }, { revokedAt: new Date(), revokedReason });
+  }
+
+  async findAll(userId: string) {
+    // const queryBuilder = this.sessionRepo.createQueryBuilder('session');
+    // const sessions = await queryBuilder
+    //   .leftJoinAndSelect('session.user', 'user')
+    //   .where('session.userId = :userId', { userId })
+    //   .getMany();
+    const sessions = await this.sessionRepo.find({
+      where: {
+        userId,
+      },
+      relations: {
+        user: true,
+      },
+    });
+    return sessions;
   }
 }

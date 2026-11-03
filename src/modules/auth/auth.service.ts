@@ -19,8 +19,6 @@ import { RefreshTokensService } from '~/src/modules/refresh-tokens/refreshTokens
 import { Request } from 'express';
 import { IRefreshProps } from '~/src/modules/auth/types';
 import { DataSource, EntityManager } from 'typeorm';
-import { Session } from '~/src/modules/sessions/entities/sessions.entity';
-import { RefreshToken } from '~/src/modules/refresh-tokens/entities/refreshTokens.entity';
 
 @Injectable()
 export class AuthService {
@@ -113,7 +111,7 @@ export class AuthService {
     return await this.dataSource.transaction(async (manager) => {
       await this.refreshTokensService.create(newJti, props.sid, manager);
 
-      await this.refreshTokensService.revoke(props.jti, manager);
+      await this.refreshTokensService.revokeOne(props.jti, manager);
 
       const accessToken = this.tokenService.generateAccessToken(
         new AccessTokenPayloadDto(props.userInfo, props.sid),
@@ -134,22 +132,15 @@ export class AuthService {
 
   async logout({ sid, jti }: IRefreshProps) {
     return await this.dataSource.transaction(async (manager) => {
-      const sessionRepo = manager.getRepository(Session);
-      await sessionRepo.update(
-        { id: sid },
+      await this.sessionsService.revokeOne(
         {
-          revokedAt: new Date(),
+          id: sid,
           revokedReason: 'LOGOUT',
         },
+        manager,
       );
 
-      const refreshTokenRepo = manager.getRepository(RefreshToken);
-      await refreshTokenRepo.update(
-        { id: jti },
-        {
-          revokedAt: new Date(),
-        },
-      );
+      await this.refreshTokensService.revokeOne(jti, manager);
 
       return {
         message: 'با موفقیت خارج شدید.',

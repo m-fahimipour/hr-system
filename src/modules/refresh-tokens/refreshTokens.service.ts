@@ -28,7 +28,7 @@ export class RefreshTokensService {
     return await repo.save(refreshTokenRow);
   }
 
-  async revoke(jti: string, manager?: EntityManager) {
+  async revokeOne(jti: string, manager?: EntityManager) {
     const repo = manager
       ? manager.getRepository(RefreshToken)
       : this.refreshTokenRepo;
