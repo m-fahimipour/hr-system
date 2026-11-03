@@ -8,7 +8,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { QueryFailedError } from 'typeorm';
 import { IExceptionResponse } from '~/src/types/error.type';
 
 /*
@@ -23,6 +22,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     switch (requestType) {
       case 'http':
+        this.httpExceptionHandler(exception, host);
         break;
       case 'ws':
         throw new Error('ws Error');
@@ -41,8 +41,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response: Response = httpCTX.getResponse();
 
     const isHTTPException = exception instanceof HttpException;
-
-    const isQueryFailedError = exception instanceof QueryFailedError;
 
     const statusCode = isHTTPException
       ? exception.getStatus()

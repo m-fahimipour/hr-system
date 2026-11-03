@@ -2,12 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import { GlobalExceptionFilter } from '~/src/exceptions/global.exception';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Set Global Prefix
   app.setGlobalPrefix(process.env.API_PREFIX);
+
+  // Error Handling
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   // Cookie
   app.use(cookieParser());
