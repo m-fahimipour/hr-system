@@ -20,12 +20,13 @@ export class AuthInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map(({ refreshToken, ...otherData }: IAuthResponse) => {
-        response.cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          sameSite: 'lax',
-          maxAge: refreshToken ? Number(process.env.JWT_REFRESH_EXP || 0) : 0, // in ms
-          secure: process.env.NODE_ENV === 'production' ? true : false,
-        });
+        if (refreshToken)
+          response.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            sameSite: 'lax',
+            maxAge: Number(process.env.JWT_REFRESH_EXP || 0), // in ms
+            secure: process.env.NODE_ENV === 'production' ? true : false,
+          });
 
         return otherData;
       }),
