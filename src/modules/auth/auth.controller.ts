@@ -28,6 +28,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @HttpCode(200)
   @ZodSerializerDto(UserSerializeDto)
   async login(
     @Body() loginUserDto: LoginUserDto,

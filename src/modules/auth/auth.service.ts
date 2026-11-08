@@ -111,7 +111,7 @@ export class AuthService {
     return await this.dataSource.transaction(async (manager) => {
       await this.refreshTokensService.create(newJti, props.sid, manager);
 
-      await this.refreshTokensService.revokeOne(props.jti, manager);
+      await this.refreshTokensService.revokeOneByJti(props.jti, manager);
 
       const accessToken = this.tokenService.generateAccessToken(
         new AccessTokenPayloadDto(props.userInfo, props.sid),
@@ -140,7 +140,7 @@ export class AuthService {
         manager,
       );
 
-      await this.refreshTokensService.revokeOne(jti, manager);
+      await this.refreshTokensService.revokeOneByJti(jti, manager);
 
       return {
         message: 'با موفقیت خارج شدید.',

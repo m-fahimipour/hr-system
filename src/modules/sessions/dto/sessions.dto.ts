@@ -5,6 +5,7 @@ export const RevokedReasonEnum = z.enum([
   'LOGOUT',
   'LOGOUT_ALL',
   'ADMIN_REVOKED',
+  'USER_REVOKED',
   'PASSWORD_CHANGED',
   'ACCOUNT_DISABLED',
   'REFRESH_TOKEN_REUSE',

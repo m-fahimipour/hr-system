@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
+import { RefreshTokensService } from '~/src/modules/refresh-tokens/refreshTokens.service';
 import { Session } from '~/src/modules/sessions/entities/sessions.entity';
 import {
   TCreateSession,
@@ -11,6 +12,8 @@ import {
 export class SessionsService {
   constructor(
     @InjectRepository(Session) private sessionRepo: Repository<Session>,
+    private readonly dataSource: DataSource,
+    private readonly refreshTokensService: RefreshTokensService,
   ) {}
 
   async create(
@@ -37,9 +40,22 @@ export class SessionsService {
     { id, revokedReason }: TRevokeSession,
     manager?: EntityManager,
   ) {
-    const repo = manager ? manager.getRepository(Session) : this.sessionRepo;
+    if (manager) {
+      await manager
+        .getRepository(Session)
+        .update({ id }, { revokedAt: new Date(), revokedReason });
+    } else {
+      return await this.dataSource.transaction(async (manager) => {
+        const repo = manager.getRepository(Session);
+        await repo.update({ id }, { revokedAt: new Date(), revokedReason });
 
-    await repo.update({ id }, { revokedAt: new Date(), revokedReason });
+        await this.refreshTokensService.revokeOneBySessionId(id, manager);
+
+        return {
+          message: 'Session is revoked.',
+        };
+      });
+    }
   }
 
   async findAll(userId: string) {
