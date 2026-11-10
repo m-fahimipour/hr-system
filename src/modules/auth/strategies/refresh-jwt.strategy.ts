@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import {
@@ -7,6 +11,7 @@ import {
   StrategyOptionsWithoutRequest,
 } from 'passport-jwt';
 import { IRefreshProps, IRefreshTokenPayload } from '~/src/modules/auth/types';
+import { SessionsService } from '~/src/modules/sessions/sessions.service';
 import { UsersService } from '~/src/modules/users/users.service';
 
 @Injectable()
@@ -14,7 +19,10 @@ export class RefreshJWTStrategy extends PassportStrategy(
   Strategy,
   'refresh-token-jwt',
 ) {
-  constructor(private readonly usersService: UsersService) {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly sessionsService: SessionsService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         RefreshJWTStrategy.ExtractJWTFromCookie,
@@ -29,6 +37,9 @@ export class RefreshJWTStrategy extends PassportStrategy(
 
   async validate(payload: IRefreshTokenPayload): Promise<IRefreshProps> {
     const user = await this.usersService.findOne(payload.sub);
+    const session = await this.sessionsService.findOne(payload.sid);
+
+    if (session.revokedAt) throw new UnauthorizedException('Revoked Access!');
 
     return {
       userInfo: user,

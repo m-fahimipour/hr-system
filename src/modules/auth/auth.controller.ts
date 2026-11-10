@@ -19,7 +19,7 @@ import { AuthInterceptor } from '~/src/interceptors/auth.interceptor';
 import type { Request } from 'express';
 import { RefreshJWTGuard } from '~/src/modules/auth/guards/refresh-jwt.guard';
 import { ZodSerializerDto } from 'nestjs-zod';
-import { UserSerializeDto } from '~/src/modules/users/dto/user.dto';
+import { UserSerialize } from '~/src/modules/users/dto/user.dto';
 
 @UseInterceptors(AuthInterceptor)
 @PublicRoute()
@@ -29,7 +29,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  @ZodSerializerDto(UserSerializeDto)
+  @ZodSerializerDto(UserSerialize)
   async login(
     @Body() loginUserDto: LoginUserDto,
     @Req() request: Request,
@@ -39,7 +39,7 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(201)
-  @ZodSerializerDto(UserSerializeDto)
+  @ZodSerializerDto(UserSerialize)
   async register(
     @Body() registerUserDto: RegisterUserDto,
     @Req() request: Request,

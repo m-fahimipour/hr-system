@@ -63,7 +63,8 @@ export class RefreshTokensService {
       },
     });
 
-    if (!!refreshTokenRow.length) {
+
+    if (!refreshTokenRow.length) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 

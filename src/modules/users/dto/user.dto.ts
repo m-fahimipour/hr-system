@@ -64,7 +64,7 @@ export const CreateUserSchema = UserSchema.pick({
 // Dto
 export class CreateUserDto extends createZodDto(CreateUserSchema) {}
 
-export class UserSerializeDto extends createZodDto(
+export class UserSerialize extends createZodDto(
   z.object({
     accessToken: z.string(),
     user: UserSchema.omit({

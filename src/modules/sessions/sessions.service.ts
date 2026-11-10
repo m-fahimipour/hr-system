@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { RefreshTokensService } from '~/src/modules/refresh-tokens/refreshTokens.service';
@@ -48,7 +48,7 @@ export class SessionsService {
       return await this.dataSource.transaction(async (manager) => {
         const repo = manager.getRepository(Session);
         await repo.update({ id }, { revokedAt: new Date(), revokedReason });
-
+        
         await this.refreshTokensService.revokeOneBySessionId(id, manager);
 
         return {
@@ -73,5 +73,17 @@ export class SessionsService {
       },
     });
     return sessions;
+  }
+
+  async findOne(sessionId: string) {
+    const session = await this.sessionRepo.findOne({
+      where: {
+        id: sessionId,
+      },
+    });
+
+    if (!session) throw new NotFoundException('Session Not-Found!');
+
+    return session;
   }
 }
