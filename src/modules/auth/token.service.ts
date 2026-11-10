@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { classToPlainObject } from '~/src/helpers';
-import {
-  AccessTokenPayloadDto,
-  RefreshTokenPayloadDto,
-} from '~/src/modules/auth/dto/token.dto';
+import { AccessTokenPayloadDto } from '~/src/modules/auth/dto/token.dto';
+import { IRefreshTokenPayload } from '~/src/modules/auth/types';
 
 @Injectable()
 export class TokenService {
@@ -33,11 +31,10 @@ export class TokenService {
     return accessToken;
   }
 
-  generateRefreshToken(payload: RefreshTokenPayloadDto) {
-    const refreshToken = this.jwtService.sign(
-      classToPlainObject(payload),
-      this.refreshTokenConfig,
-    );
+  generateRefreshToken(
+    payload: Pick<IRefreshTokenPayload, 'sub' | 'jti' | 'sid'>,
+  ) {
+    const refreshToken = this.jwtService.sign(payload, this.refreshTokenConfig);
 
     return refreshToken;
   }

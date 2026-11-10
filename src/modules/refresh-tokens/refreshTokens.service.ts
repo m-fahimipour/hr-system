@@ -56,8 +56,8 @@ export class RefreshTokensService {
 
     const refreshTokenRow = await repo.find({
       where: {
-        session:{
-          id:sessionId
+        session: {
+          id: sessionId,
         },
         revokedAt: IsNull(),
       },
@@ -67,11 +67,14 @@ export class RefreshTokensService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    await repo.update({
-      sessionId,
-      revokedAt:IsNull()
-    },{
-      revokedAt:new Date()
-    });
+    await repo.update(
+      {
+        sessionId,
+        revokedAt: IsNull(),
+      },
+      {
+        revokedAt: new Date(),
+      },
+    );
   }
 }

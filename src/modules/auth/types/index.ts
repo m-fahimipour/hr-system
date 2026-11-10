@@ -17,3 +17,8 @@ export interface IRefreshProps {
   sid: string;
   jti: string;
 }
+
+export interface IRefreshTokenPayload extends IReserveClaim {
+  sid: string;
+  jti: string;
+}

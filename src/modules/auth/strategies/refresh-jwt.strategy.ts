@@ -6,8 +6,7 @@ import {
   Strategy,
   StrategyOptionsWithoutRequest,
 } from 'passport-jwt';
-import { RefreshTokenPayloadDto } from '~/src/modules/auth/dto/token.dto';
-import { IRefreshProps } from '~/src/modules/auth/types';
+import { IRefreshProps, IRefreshTokenPayload } from '~/src/modules/auth/types';
 import { UsersService } from '~/src/modules/users/users.service';
 
 @Injectable()
@@ -28,7 +27,7 @@ export class RefreshJWTStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: RefreshTokenPayloadDto): Promise<IRefreshProps> {
+  async validate(payload: IRefreshTokenPayload): Promise<IRefreshProps> {
     const user = await this.usersService.findOne(payload.sub);
 
     return {

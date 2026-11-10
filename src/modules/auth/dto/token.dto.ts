@@ -12,15 +12,3 @@ export class AccessTokenPayloadDto implements Partial<IReserveClaim> {
     this.role = user.role;
   }
 }
-
-export class RefreshTokenPayloadDto implements Partial<IReserveClaim> {
-  sub: string;
-  sid: string;
-  jti: string;
-
-  constructor(userId: string, sessionId: string, jwtId: string) {
-    this.sub = userId;
-    this.sid = sessionId;
-    this.jti = jwtId;
-  }
-}
