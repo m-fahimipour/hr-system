@@ -1,4 +1,4 @@
-import { TUser } from '~/src/modules/users/types/user.type';
+import { TUser, TUserRole } from '~/src/modules/users/types/user.type';
 
 export interface IAuthResponse {
   accessToken: string;
@@ -21,4 +21,9 @@ export interface IRefreshProps {
 export interface IRefreshTokenPayload extends IReserveClaim {
   sid: string;
   jti: string;
+}
+
+export interface IAccessTokenPayload extends IReserveClaim {
+  sid: string;
+  role: TUserRole;
 }

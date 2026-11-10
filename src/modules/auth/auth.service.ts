@@ -8,7 +8,6 @@ import { UsersService } from '~/src/modules/users/users.service';
 import bcrypt from 'bcryptjs';
 import { LoginUserDto } from '~/src/modules/auth/dto/login.dto';
 import { SessionsService } from '~/src/modules/sessions/sessions.service';
-import { AccessTokenPayloadDto } from '~/src/modules/auth/dto/token.dto';
 
 import { v4 as uuidV4 } from 'uuid';
 import { TokenService } from '~/src/modules/auth/token.service';
@@ -48,9 +47,11 @@ export class AuthService {
       await this.refreshTokensService.create(jti, session.id, manager);
 
       // Create Tokens
-      const accessToken = this.tokenService.generateAccessToken(
-        new AccessTokenPayloadDto(user, session.id),
-      );
+      const accessToken = this.tokenService.generateAccessToken({
+        sub: user.id,
+        sid: session.id,
+        role: user.role,
+      });
 
       const refreshToken = this.tokenService.generateRefreshToken({
         sub: user.id,
@@ -88,9 +89,11 @@ export class AuthService {
 
       await this.refreshTokensService.create(jti, session.id, manager);
 
-      const accessToken = this.tokenService.generateAccessToken(
-        new AccessTokenPayloadDto(user, session.id),
-      );
+      const accessToken = this.tokenService.generateAccessToken({
+        sub: user.id,
+        sid: session.id,
+        role: user.role,
+      });
 
       const refreshToken = this.tokenService.generateRefreshToken({
         sub: user.id,
@@ -114,9 +117,11 @@ export class AuthService {
 
       await this.refreshTokensService.revokeOneByJti(props.jti, manager);
 
-      const accessToken = this.tokenService.generateAccessToken(
-        new AccessTokenPayloadDto(props.userInfo, props.sid),
-      );
+      const accessToken = this.tokenService.generateAccessToken({
+        sub: props.userInfo.id,
+        sid: props.sid,
+        role: props.userInfo.role!,
+      });
 
       // for refresh rotating
       const refreshToken = this.tokenService.generateRefreshToken({

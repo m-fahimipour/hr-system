@@ -17,7 +17,7 @@ export const PasswordSchema = z
   });
 
 export const UserRoleSchema = z.enum(
-  ['HR_ADMIN', 'MANAGER'],
+  ['HR_ADMIN', 'MANAGER', 'USER'],
   'نقش ارسال شده اشتباه است.',
 );
 

@@ -48,7 +48,7 @@ export class SessionsService {
       return await this.dataSource.transaction(async (manager) => {
         const repo = manager.getRepository(Session);
         await repo.update({ id }, { revokedAt: new Date(), revokedReason });
-        
+
         await this.refreshTokensService.revokeOneBySessionId(id, manager);
 
         return {

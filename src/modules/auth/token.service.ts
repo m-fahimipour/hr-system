@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { classToPlainObject } from '~/src/helpers';
-import { AccessTokenPayloadDto } from '~/src/modules/auth/dto/token.dto';
-import { IRefreshTokenPayload } from '~/src/modules/auth/types';
+import {
+  IAccessTokenPayload,
+  IRefreshTokenPayload,
+} from '~/src/modules/auth/types';
 
 @Injectable()
 export class TokenService {
@@ -22,11 +23,10 @@ export class TokenService {
 
   constructor(private readonly jwtService: JwtService) {}
 
-  generateAccessToken(payload: AccessTokenPayloadDto) {
-    const accessToken = this.jwtService.sign(
-      classToPlainObject(payload),
-      this.accessTokenConfig,
-    );
+  generateAccessToken(
+    payload: Pick<IAccessTokenPayload, 'sub' | 'sid' | 'role'>,
+  ) {
+    const accessToken = this.jwtService.sign(payload, this.accessTokenConfig);
 
     return accessToken;
   }
